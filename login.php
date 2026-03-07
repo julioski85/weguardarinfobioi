@@ -43,7 +43,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="auth-card-wrap">
             <section class="auth-card">
                 <div class="auth-card-head">
-                    <h2>Registro Diario de Tienda</h2>
+                    <div class="auth-logo-mark">RD</div>
+                    <h2>Registro Diario</h2>
                 </div>
 
                 <?php if ($error): ?>
