@@ -14,12 +14,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $username = trim((string) ($_POST['username'] ?? ''));
         $password = (string) ($_POST['password'] ?? '');
+        $rememberMe = !empty($_POST['remember_me']);
 
         $user = getUserByUsername($username);
 
         if ($user && password_verify($password, $user['password_hash'])) {
             session_regenerate_id(true);
             $_SESSION['user_id'] = (int) $user['id'];
+
+            if ($rememberMe) {
+                setRememberMeCookie($user);
+            } else {
+                clearRememberMeCookie();
+            }
+
             header('Location: index.php');
             exit;
         }
@@ -43,7 +51,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="auth-card-wrap">
             <section class="auth-card">
                 <div class="auth-card-head">
-                    <h2>Registro Diario de Tienda</h2>
+                    <div class="auth-logo">
+                        <div class="auth-logo-mark">RD</div>
+                        <div class="auth-logo-copy">
+                            <strong>Registro Diario</strong>
+                        </div>
+                    </div>
+                    <h2>Panel de acceso</h2>
                 </div>
 
                 <?php if ($error): ?>
@@ -60,6 +74,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <label>Contraseña</label>
                         <input type="password" name="password" required autocomplete="current-password" placeholder="Contraseña">
                     </div>
+
+                    <label class="remember-row">
+                        <input type="checkbox" name="remember_me" value="1">
+                        <span>Recuérdame</span>
+                    </label>
 
                     <button type="submit" class="btn btn-primary btn-block">Iniciar sesión</button>
                 </form>
