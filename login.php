@@ -40,25 +40,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body class="auth-body">
     <div class="auth-layout">
-        <aside class="auth-side">
-            <div class="auth-logo">
-                <div class="auth-logo-mark">RD</div>
-                <span>Registro Diario de Tienda</span>
-            </div>
-
-            <div class="auth-side-copy">
-                <div class="eyebrow">Acceso seguro</div>
-                <h1>Panel de acceso.</h1>
-                <p>Sucursales y administración.</p>
-            </div>
-        </aside>
-
         <div class="auth-card-wrap">
             <section class="auth-card">
                 <div class="auth-card-head">
-                    <div class="auth-badge">Iniciar sesión</div>
-                    <h2>Bienvenido</h2>
-                    <p>Ingresa tus datos para continuar.</p>
+                    <h2>Registro Diario de Tienda</h2>
                 </div>
 
                 <?php if ($error): ?>
@@ -68,15 +53,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <form method="post" class="auth-form">
                     <div class="field full">
                         <label>Usuario</label>
-                        <input type="text" name="username" required autocomplete="username" placeholder="Escribe tu usuario">
+                        <input type="text" name="username" required autocomplete="username" placeholder="Usuario">
                     </div>
 
                     <div class="field full">
                         <label>Contraseña</label>
-                        <input type="password" name="password" required autocomplete="current-password" placeholder="Escribe tu contraseña">
+                        <input type="password" name="password" required autocomplete="current-password" placeholder="Contraseña">
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+                    <button type="submit" class="btn btn-primary btn-block">Iniciar sesión</button>
                 </form>
             </section>
         </div>
