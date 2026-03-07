@@ -46,10 +46,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="auth-logo">
                         <div class="auth-logo-mark">RD</div>
                         <div class="auth-logo-copy">
-                            <strong>Registro Diario</strong>
+                            <strong>Registro Diario Panel administrador</strong>
                         </div>
                     </div>
-                    <h2>Panel de acceso</h2>
                 </div>
 
                 <?php if ($error): ?>
