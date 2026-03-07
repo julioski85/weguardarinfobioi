@@ -5,6 +5,6 @@ date_default_timezone_set('America/Mexico_City');
 
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'u801126150_fern4');
-define('DB_USER', 'u801126150_fern4');
-define('DB_PASS', 'AQUI_VA_TU_PASSWORD');
+define('DB_USER', 'u801126150_fer4');
+define('DB_PASS', 'Juliocesar1234$');
 define('APP_DEBUG', false);
