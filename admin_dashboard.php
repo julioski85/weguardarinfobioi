@@ -33,10 +33,10 @@ $flash = flashGet();
                 </div>
             </a>
 
-            <div class="sidebar-user">
-                <strong><?php echo e($user['username']); ?></strong>
-                <span>Administrador</span>
-            </div>
+                <div class="sidebar-user">
+                    <strong>admin <?php echo e($user['username']); ?></strong>
+                    <span>Administrador</span>
+                </div>
 
             <div class="sidebar-section-title">Navegación</div>
             <nav class="sidebar-nav">
@@ -52,7 +52,7 @@ $flash = flashGet();
 
         <div class="app-main">
             <header class="headerbar">
-                <div>
+                <div class="headerbar-copy">
                     <div class="brand-pill">Dashboard</div>
                     <h1>Resumen general</h1>
                     <p>Consulta métricas, gráficas y registros capturados por sucursal.</p>
@@ -70,7 +70,7 @@ $flash = flashGet();
                     </div>
                 <?php endif; ?>
 
-                <section class="card">
+                <section class="card card-soft">
                     <div class="card-header">
                         <div>
                             <h2 class="section-title">Filtros</h2>

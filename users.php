@@ -43,7 +43,7 @@ $storeUsers = getStoreUsers();
             </a>
 
             <div class="sidebar-user">
-                <strong><?php echo e($user['username']); ?></strong>
+                <strong>admin <?php echo e($user['username']); ?></strong>
                 <span>Gestión de accesos</span>
             </div>
 
@@ -53,11 +53,15 @@ $storeUsers = getStoreUsers();
                 <a href="users.php" class="nav-link active"><span class="nav-link-icon"></span>Accesos de tiendas</a>
                 <a href="logout.php" class="nav-link"><span class="nav-link-icon"></span>Cerrar sesión</a>
             </nav>
+
+            <div class="sidebar-bottom">
+                <div class="brand-pill">Vista general</div>
+            </div>
         </aside>
 
         <div class="app-main">
             <header class="headerbar">
-                <div>
+                <div class="headerbar-copy">
                     <div class="brand-pill">Usuarios</div>
                     <h1>Accesos de tiendas</h1>
                     <p>Actualiza contraseñas de cada sucursal desde este módulo.</p>
