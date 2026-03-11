@@ -51,6 +51,7 @@ $storeUsers = getStoreUsers();
             <nav class="sidebar-nav">
                 <a href="admin_dashboard.php" class="nav-link"><span class="nav-link-icon"></span>Dashboard</a>
                 <a href="users.php" class="nav-link active"><span class="nav-link-icon"></span>Accesos de tiendas</a>
+                <a href="configuracion_visual.php" class="nav-link"><span class="nav-link-icon"></span>Configuración visual</a>
                 <a href="logout.php" class="nav-link"><span class="nav-link-icon"></span>Cerrar sesión</a>
             </nav>
 
