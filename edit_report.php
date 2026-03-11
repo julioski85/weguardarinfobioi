@@ -139,7 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="number" name="info_count" min="0" step="1" value="<?php echo (int) $report['info_count']; ?>" required>
                         </div>
 
-                        <div class="source-box">
+                        <div class="source-box full">
                             <div class="source-box-title">Origen del interés</div>
                             <div class="source-grid">
                                 <div class="field">

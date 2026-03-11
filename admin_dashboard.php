@@ -11,7 +11,21 @@ $stores = getStores();
 $chartByStore = getChartDataByStore($filters);
 $chartByDate = getChartDataByDate($filters);
 $sourceTotals = getSourceChartTotals($filters);
+$visualError = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') === 'update_login_background') {
+    try {
+        uploadLoginBackground($_FILES['login_background_image'] ?? []);
+        flashSet('success', 'La imagen de fondo del login se actualizó correctamente.');
+        header('Location: admin_dashboard.php');
+        exit;
+    } catch (Throwable $e) {
+        $visualError = $e->getMessage();
+    }
+}
+
 $flash = flashGet();
+$loginBackgroundUrl = getLoginBackgroundUrl();
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -69,6 +83,38 @@ $flash = flashGet();
                         <?php echo e($flash['message']); ?>
                     </div>
                 <?php endif; ?>
+
+                <?php if ($visualError): ?>
+                    <div class="alert alert-danger"><?php echo e($visualError); ?></div>
+                <?php endif; ?>
+
+                <section class="card visual-settings-card">
+                    <div class="card-header">
+                        <div>
+                            <h2 class="section-title">Configuración visual</h2>
+                            <p class="section-copy">Actualiza la imagen de fondo del login en segundos.</p>
+                        </div>
+                    </div>
+
+                    <?php if ($loginBackgroundUrl): ?>
+                        <img class="visual-settings-preview" src="<?php echo e($loginBackgroundUrl); ?>" alt="Vista previa de fondo del login">
+                    <?php endif; ?>
+
+                    <form method="post" enctype="multipart/form-data" class="visual-settings-form">
+                        <input type="hidden" name="action" value="update_login_background">
+
+                        <div class="field">
+                            <label>Nueva imagen de fondo</label>
+                            <input type="file" name="login_background_image" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" required>
+                        </div>
+
+                        <p class="visual-settings-help">Formatos permitidos: JPG, JPEG, PNG y WEBP. Tamaño máximo: 4 MB.</p>
+
+                        <div class="field">
+                            <button type="submit" class="btn btn-primary">Subir y activar imagen</button>
+                        </div>
+                    </form>
+                </section>
 
                 <section class="card card-soft">
                     <div class="card-header">
