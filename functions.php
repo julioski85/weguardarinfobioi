@@ -79,9 +79,9 @@ function getTodayReportForStore(int $storeId): ?array
 function createDailyReport(array $data): bool
 {
     $sql = 'INSERT INTO daily_reports
-        (store_id, report_date, client_new, recurrent, entered_total, buyers, info_count, channel33_count, youtube_count, created_by_user_id, created_at, updated_at)
+        (store_id, report_date, client_new, recurrent, entered_total, buyers, info_count, channel33_count, youtube_count, izzi_count, totalplay_count, created_by_user_id, created_at, updated_at)
         VALUES
-        (:store_id, :report_date, :client_new, :recurrent, :entered_total, :buyers, :info_count, :channel33_count, :youtube_count, :created_by_user_id, :created_at, :updated_at)';
+        (:store_id, :report_date, :client_new, :recurrent, :entered_total, :buyers, :info_count, :channel33_count, :youtube_count, :izzi_count, :totalplay_count, :created_by_user_id, :created_at, :updated_at)';
 
     $stmt = db()->prepare($sql);
 
@@ -100,6 +100,8 @@ function updateDailyReport(int $reportId, array $data): bool
         info_count = :info_count,
         channel33_count = :channel33_count,
         youtube_count = :youtube_count,
+        izzi_count = :izzi_count,
+        totalplay_count = :totalplay_count,
         updated_at = :updated_at
         WHERE id = :id';
 
@@ -165,7 +167,9 @@ function getDashboardMetrics(array $filters): array
             COALESCE(SUM(dr.buyers), 0) AS total_buyers,
             COALESCE(SUM(dr.info_count), 0) AS total_information,
             COALESCE(SUM(dr.channel33_count), 0) AS total_channel33,
-            COALESCE(SUM(dr.youtube_count), 0) AS total_youtube
+            COALESCE(SUM(dr.youtube_count), 0) AS total_youtube,
+            COALESCE(SUM(dr.izzi_count), 0) AS total_izzi,
+            COALESCE(SUM(dr.totalplay_count), 0) AS total_totalplay
         FROM daily_reports dr' . $where;
 
     $stmt = db()->prepare($sql);
@@ -256,9 +260,10 @@ function getSourceChartTotals(array $filters): array
     $where = buildDashboardWhere($filters, $params);
 
     $sql = 'SELECT
-                COALESCE(SUM(dr.info_count), 0) AS information_total,
                 COALESCE(SUM(dr.channel33_count), 0) AS channel33_total,
-                COALESCE(SUM(dr.youtube_count), 0) AS youtube_total
+                COALESCE(SUM(dr.youtube_count), 0) AS youtube_total,
+                COALESCE(SUM(dr.izzi_count), 0) AS izzi_total,
+                COALESCE(SUM(dr.totalplay_count), 0) AS totalplay_total
             FROM daily_reports dr
             ' . $where;
 
@@ -266,9 +271,10 @@ function getSourceChartTotals(array $filters): array
     $stmt->execute($params);
 
     return $stmt->fetch() ?: [
-        'information_total' => 0,
         'channel33_total' => 0,
         'youtube_total' => 0,
+        'izzi_total' => 0,
+        'totalplay_total' => 0,
     ];
 }
 

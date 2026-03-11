@@ -23,6 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $infoCount = validateNonNegativeInt($_POST['info_count'] ?? '');
         $channel33Count = validateNonNegativeInt($_POST['channel33_count'] ?? '');
         $youtubeCount = validateNonNegativeInt($_POST['youtube_count'] ?? '');
+        $izziCount = validateNonNegativeInt($_POST['izzi_count'] ?? '');
+        $totalplayCount = validateNonNegativeInt($_POST['totalplay_count'] ?? '');
 
         $enteredTotal = $clientNew + $recurrent;
 
@@ -38,6 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'info_count' => $infoCount,
             'channel33_count' => $channel33Count,
             'youtube_count' => $youtubeCount,
+            'izzi_count' => $izziCount,
+            'totalplay_count' => $totalplayCount,
             'updated_at' => appDateTimeNow(),
         ]);
 
@@ -146,6 +150,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <div class="field">
                                     <label>YouTube</label>
                                     <input type="number" name="youtube_count" min="0" step="1" value="<?php echo (int) $report['youtube_count']; ?>" required>
+                                </div>
+
+                                <div class="field">
+                                    <label>Izzi</label>
+                                    <input type="number" name="izzi_count" min="0" step="1" value="<?php echo (int) $report['izzi_count']; ?>" required>
+                                </div>
+
+                                <div class="field">
+                                    <label>Total Play</label>
+                                    <input type="number" name="totalplay_count" min="0" step="1" value="<?php echo (int) $report['totalplay_count']; ?>" required>
                                 </div>
                             </div>
                         </div>

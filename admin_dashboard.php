@@ -113,7 +113,7 @@ $flash = flashGet();
                     <div class="metric-card metric-orange"><span>Compraron</span><strong><?php echo (int) $metrics['total_buyers']; ?></strong></div>
                     <div class="metric-card metric-blue"><span>Conversión</span><strong><?php echo e((string) $metrics['conversion_rate']); ?>%</strong></div>
                     <div class="metric-card metric-neutral"><span>Información</span><strong><?php echo (int) $metrics['total_information']; ?></strong></div>
-                    <div class="metric-card metric-neutral"><span>Canal 3.3 + YouTube</span><strong><?php echo (int) $metrics['total_channel33'] + (int) $metrics['total_youtube']; ?></strong></div>
+                    <div class="metric-card metric-neutral"><span>Canales origen</span><strong><?php echo (int) $metrics['total_channel33'] + (int) $metrics['total_youtube'] + (int) $metrics['total_izzi'] + (int) $metrics['total_totalplay']; ?></strong></div>
                 </section>
 
                 <section class="charts-grid">
@@ -131,10 +131,26 @@ $flash = flashGet();
                         <div class="card-header">
                             <div>
                                 <h2>Origen del interés</h2>
-                                <p class="section-copy">Información, Canal 3.3 y YouTube.</p>
+                                <p class="section-copy">Canal 3.3, YouTube, Izzi y Total Play.</p>
                             </div>
                         </div>
                         <canvas id="sourceChart"></canvas>
+                    </div>
+
+
+                    <div class="card chart-short">
+                        <div class="card-header">
+                            <div>
+                                <h2>Resultado comercial</h2>
+                                <p class="section-copy">Compraron vs solo información y conversión total.</p>
+                            </div>
+                        </div>
+                        <div class="summary-grid">
+                            <div class="summary-box"><span>Compraron</span><strong><?php echo (int) $metrics['total_buyers']; ?></strong></div>
+                            <div class="summary-box"><span>Solo información</span><strong><?php echo (int) $metrics['total_information']; ?></strong></div>
+                            <div class="summary-box"><span>% conversión</span><strong><?php echo e((string) $metrics['conversion_rate']); ?>%</strong></div>
+                        </div>
+                        <canvas id="conversionChart"></canvas>
                     </div>
 
                     <div class="card card-full">
@@ -169,6 +185,8 @@ $flash = flashGet();
                                     <th>Información</th>
                                     <th>Canal 3.3</th>
                                     <th>YouTube</th>
+                                    <th>Izzi</th>
+                                    <th>Total Play</th>
                                     <th>Capturó</th>
                                     <th>Acciones</th>
                                 </tr>
@@ -176,7 +194,7 @@ $flash = flashGet();
                             <tbody>
                                 <?php if (!$reports): ?>
                                     <tr>
-                                        <td colspan="11" class="text-center muted">No hay registros con ese filtro.</td>
+                                        <td colspan="13" class="text-center muted">No hay registros con ese filtro.</td>
                                     </tr>
                                 <?php else: ?>
                                     <?php foreach ($reports as $report): ?>
@@ -190,6 +208,8 @@ $flash = flashGet();
                                             <td><?php echo (int) $report['info_count']; ?></td>
                                             <td><?php echo (int) $report['channel33_count']; ?></td>
                                             <td><?php echo (int) $report['youtube_count']; ?></td>
+                                            <td><?php echo (int) $report['izzi_count']; ?></td>
+                                            <td><?php echo (int) $report['totalplay_count']; ?></td>
                                             <td><?php echo e($report['created_by_username'] ?? '-'); ?></td>
                                             <td>
                                                 <div class="actions-inline">
@@ -281,17 +301,38 @@ $flash = flashGet();
             options: commonBarOptions
         });
 
+
+
+        new Chart(document.getElementById('conversionChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Compraron', 'Solo información'],
+                datasets: [{
+                    data: [<?php echo (int) $metrics['total_buyers']; ?>, <?php echo (int) $metrics['total_information']; ?>],
+                    backgroundColor: ['#22c55e', '#6259ca'],
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                ...commonBarOptions,
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
         new Chart(document.getElementById('sourceChart'), {
             type: 'doughnut',
             data: {
-                labels: ['Información', 'Canal 3.3', 'YouTube'],
+                labels: ['Canal 3.3', 'YouTube', 'Izzi', 'Total Play'],
                 datasets: [{
                     data: [
-                        <?php echo (int) $sourceTotals['information_total']; ?>,
                         <?php echo (int) $sourceTotals['channel33_total']; ?>,
-                        <?php echo (int) $sourceTotals['youtube_total']; ?>
+                        <?php echo (int) $sourceTotals['youtube_total']; ?>,
+                        <?php echo (int) $sourceTotals['izzi_total']; ?>,
+                        <?php echo (int) $sourceTotals['totalplay_total']; ?>
                     ],
-                    backgroundColor: ['#6259ca', '#22c55e', '#ff9f43'],
+                    backgroundColor: ['#22c55e', '#ff9f43', '#3b82f6', '#8b5cf6'],
                     borderWidth: 0
                 }]
             },
