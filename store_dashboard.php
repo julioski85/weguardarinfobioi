@@ -166,7 +166,7 @@ $todayReport = getTodayReportForStore((int) $user['store_id']);
                                 <input type="number" name="info_count" min="0" step="1" required>
                             </div>
 
-                            <div class="source-box">
+                            <div class="source-box full">
                                 <div class="source-box-title">Origen del interés</div>
                                 <div class="source-grid">
                                     <div class="field">

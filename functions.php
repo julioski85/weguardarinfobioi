@@ -325,3 +325,155 @@ function flashGet(): ?array
 
     return $flash;
 }
+
+function appSettingsTableExists(): bool
+{
+    static $exists = null;
+
+    if ($exists !== null) {
+        return $exists;
+    }
+
+    try {
+        $stmt = db()->query("SHOW TABLES LIKE 'app_settings'");
+        $exists = (bool) $stmt->fetchColumn();
+    } catch (Throwable $e) {
+        $exists = false;
+    }
+
+    return $exists;
+}
+
+function getAppSetting(string $key, ?string $default = null): ?string
+{
+    if (!appSettingsTableExists()) {
+        return $default;
+    }
+
+    $stmt = db()->prepare('SELECT setting_value FROM app_settings WHERE setting_key = :setting_key LIMIT 1');
+    $stmt->execute(['setting_key' => $key]);
+    $value = $stmt->fetchColumn();
+
+    if ($value === false || $value === null) {
+        return $default;
+    }
+
+    return (string) $value;
+}
+
+function setAppSetting(string $key, string $value): bool
+{
+    if (!appSettingsTableExists()) {
+        throw new RuntimeException('Falta la tabla app_settings. Ejecuta el SQL de configuración visual para habilitar esta función.');
+    }
+
+    $sql = 'INSERT INTO app_settings (setting_key, setting_value, updated_at)
+        VALUES (:setting_key, :setting_value, :updated_at)
+        ON DUPLICATE KEY UPDATE
+            setting_value = VALUES(setting_value),
+            updated_at = VALUES(updated_at)';
+
+    $stmt = db()->prepare($sql);
+    return $stmt->execute([
+        'setting_key' => $key,
+        'setting_value' => $value,
+        'updated_at' => appDateTimeNow(),
+    ]);
+}
+
+function getDefaultLoginBackground(): ?string
+{
+    $candidates = [
+        'assets/1.jpg',
+        '1.jpg',
+    ];
+
+    foreach ($candidates as $candidate) {
+        if (is_file(__DIR__ . '/' . $candidate)) {
+            return $candidate;
+        }
+    }
+
+    return null;
+}
+
+function getLoginBackgroundPath(): ?string
+{
+    $customPath = getAppSetting('login_background_image', '');
+
+    if ($customPath && is_file(__DIR__ . '/' . $customPath)) {
+        return $customPath;
+    }
+
+    return getDefaultLoginBackground();
+}
+
+function getLoginBackgroundUrl(): string
+{
+    $path = getLoginBackgroundPath();
+    if (!$path) {
+        return '';
+    }
+
+    return $path . '?v=' . rawurlencode((string) @filemtime(__DIR__ . '/' . $path));
+}
+
+function uploadLoginBackground(array $file): string
+{
+    if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+        throw new InvalidArgumentException('Selecciona una imagen válida para subir.');
+    }
+
+    if (!is_uploaded_file($file['tmp_name'])) {
+        throw new InvalidArgumentException('No se recibió un archivo subido correctamente.');
+    }
+
+    $maxSizeBytes = 4 * 1024 * 1024;
+    $size = (int) ($file['size'] ?? 0);
+    if ($size <= 0 || $size > $maxSizeBytes) {
+        throw new InvalidArgumentException('La imagen debe pesar máximo 4 MB.');
+    }
+
+    $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+    $originalName = (string) ($file['name'] ?? '');
+    $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+    if (!in_array($extension, $allowedExtensions, true)) {
+        throw new InvalidArgumentException('Formato no permitido. Usa JPG, JPEG, PNG o WEBP.');
+    }
+
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mimeType = (string) $finfo->file($file['tmp_name']);
+    $allowedMime = [
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'png' => 'image/png',
+        'webp' => 'image/webp',
+    ];
+
+    if (($allowedMime[$extension] ?? '') !== $mimeType) {
+        throw new InvalidArgumentException('El tipo MIME del archivo no coincide con una imagen permitida.');
+    }
+
+    $directoryRelative = 'uploads/login_backgrounds';
+    $directoryAbsolute = __DIR__ . '/' . $directoryRelative;
+    if (!is_dir($directoryAbsolute) && !mkdir($directoryAbsolute, 0755, true) && !is_dir($directoryAbsolute)) {
+        throw new RuntimeException('No se pudo crear el directorio para subir imágenes.');
+    }
+
+    $newFilename = 'login_bg_' . date('Ymd_His') . '_' . bin2hex(random_bytes(6)) . '.' . $extension;
+    $destinationRelative = $directoryRelative . '/' . $newFilename;
+    $destinationAbsolute = __DIR__ . '/' . $destinationRelative;
+
+    if (!move_uploaded_file($file['tmp_name'], $destinationAbsolute)) {
+        throw new RuntimeException('No se pudo guardar la imagen subida.');
+    }
+
+    $previousPath = getAppSetting('login_background_image', '');
+    setAppSetting('login_background_image', $destinationRelative);
+
+    if ($previousPath && str_starts_with($previousPath, $directoryRelative . '/') && is_file(__DIR__ . '/' . $previousPath)) {
+        @unlink(__DIR__ . '/' . $previousPath);
+    }
+
+    return $destinationRelative;
+}
