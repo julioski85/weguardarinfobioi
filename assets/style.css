@@ -519,6 +519,10 @@ tr:hover td { background: #fbfdff; }
     gap: 0.75rem;
 }
 
+.source-grid {
+    grid-template-columns: repeat(4, minmax(120px, 1fr));
+}
+
 .summary-box,
 .source-box {
     border: 1px solid var(--border);

@@ -21,6 +21,8 @@ echo '<tr>
         <th>Información</th>
         <th>Canal 3.3</th>
         <th>YouTube</th>
+        <th>Izzi</th>
+        <th>Total Play</th>
         <th>Capturó</th>
       </tr>';
 
@@ -35,6 +37,8 @@ foreach ($reports as $report) {
     echo '<td>' . (int) $report['info_count'] . '</td>';
     echo '<td>' . (int) $report['channel33_count'] . '</td>';
     echo '<td>' . (int) $report['youtube_count'] . '</td>';
+    echo '<td>' . (int) $report['izzi_count'] . '</td>';
+    echo '<td>' . (int) $report['totalplay_count'] . '</td>';
     echo '<td>' . e($report['created_by_username'] ?? '-') . '</td>';
     echo '</tr>';
 }

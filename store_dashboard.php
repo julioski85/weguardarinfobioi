@@ -17,6 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$todayReport) {
         $infoCount = validateNonNegativeInt($_POST['info_count'] ?? '');
         $channel33Count = validateNonNegativeInt($_POST['channel33_count'] ?? '');
         $youtubeCount = validateNonNegativeInt($_POST['youtube_count'] ?? '');
+        $izziCount = validateNonNegativeInt($_POST['izzi_count'] ?? '');
+        $totalplayCount = validateNonNegativeInt($_POST['totalplay_count'] ?? '');
 
         $enteredTotal = $clientNew + $recurrent;
 
@@ -34,6 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$todayReport) {
             'info_count' => $infoCount,
             'channel33_count' => $channel33Count,
             'youtube_count' => $youtubeCount,
+            'izzi_count' => $izziCount,
+            'totalplay_count' => $totalplayCount,
             'created_by_user_id' => (int) $user['id'],
             'created_at' => appDateTimeNow(),
             'updated_at' => appDateTimeNow(),
@@ -131,6 +135,8 @@ $todayReport = getTodayReportForStore((int) $user['store_id']);
                             <div class="summary-box"><span>Información</span><strong><?php echo (int) $todayReport['info_count']; ?></strong></div>
                             <div class="summary-box"><span>Canal 3.3</span><strong><?php echo (int) $todayReport['channel33_count']; ?></strong></div>
                             <div class="summary-box"><span>YouTube</span><strong><?php echo (int) $todayReport['youtube_count']; ?></strong></div>
+                            <div class="summary-box"><span>Izzi</span><strong><?php echo (int) $todayReport['izzi_count']; ?></strong></div>
+                            <div class="summary-box"><span>Total Play</span><strong><?php echo (int) $todayReport['totalplay_count']; ?></strong></div>
                         </div>
                     <?php else: ?>
                         <form method="post" id="reportForm" class="form-grid">
@@ -171,6 +177,16 @@ $todayReport = getTodayReportForStore((int) $user['store_id']);
                                     <div class="field">
                                         <label>YouTube</label>
                                         <input type="number" name="youtube_count" min="0" step="1" required>
+                                    </div>
+
+                                    <div class="field">
+                                        <label>Izzi</label>
+                                        <input type="number" name="izzi_count" min="0" step="1" required>
+                                    </div>
+
+                                    <div class="field">
+                                        <label>Total Play</label>
+                                        <input type="number" name="totalplay_count" min="0" step="1" required>
                                     </div>
                                 </div>
                             </div>
