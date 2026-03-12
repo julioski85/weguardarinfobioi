@@ -328,6 +328,12 @@ a { color: inherit; text-decoration: none; }
     letter-spacing: 0.01em;
 }
 
+.label-hint {
+    font-weight: 500;
+    color: #98a2b3;
+    font-size: 0.7rem;
+}
+
 input,
 select {
     width: 100%;
