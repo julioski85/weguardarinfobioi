@@ -133,14 +133,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
 
                         <div class="field">
-                            <label>Compraron</label>
-                            <input type="number" name="buyers" id="buyers" min="0" step="1" value="<?php echo (int) $report['buyers']; ?>" required>
-                            <small class="helper-text">No puede ser mayor que Clientes en el día.</small>
+                            <label>Personas que entraron</label>
+                            <input type="number" id="entered_from_interest_preview" value="<?php echo (int) $report['buyers'] + (int) $report['info_count']; ?>" readonly class="readonly-input">
                         </div>
 
                         <div class="field">
-                            <label>Entraron</label>
-                            <input type="number" id="entered_from_interest_preview" value="<?php echo (int) $report['buyers'] + (int) $report['info_count']; ?>" readonly class="readonly-input">
+                            <label>Compraron</label>
+                            <input type="number" name="buyers" id="buyers" min="0" step="1" value="<?php echo (int) $report['buyers']; ?>" required>
+                            <small class="helper-text">No puede ser mayor que Clientes en el día.</small>
                         </div>
 
                         <div class="field">
