@@ -62,6 +62,8 @@ function getUserByUsername(string $username): ?array
 
 function getTodayReportForStore(int $storeId): ?array
 {
+    ensureDailyReportsSchema();
+
     $stmt = db()->prepare('SELECT dr.*, s.name AS store_name
         FROM daily_reports dr
         INNER JOIN stores s ON s.id = dr.store_id
@@ -78,10 +80,12 @@ function getTodayReportForStore(int $storeId): ?array
 
 function createDailyReport(array $data): bool
 {
+    ensureDailyReportsSchema();
+
     $sql = 'INSERT INTO daily_reports
-        (store_id, report_date, client_new, recurrent, entered_total, buyers, info_count, channel33_count, youtube_count, izzi_count, totalplay_count, created_by_user_id, created_at, updated_at)
+        (store_id, report_date, client_new, recurrent, entered_total, buyers, info_count, channel33_count, youtube_count, izzi_count, totalplay_count, recommendation_count, radio_count, created_by_user_id, created_at, updated_at)
         VALUES
-        (:store_id, :report_date, :client_new, :recurrent, :entered_total, :buyers, :info_count, :channel33_count, :youtube_count, :izzi_count, :totalplay_count, :created_by_user_id, :created_at, :updated_at)';
+        (:store_id, :report_date, :client_new, :recurrent, :entered_total, :buyers, :info_count, :channel33_count, :youtube_count, :izzi_count, :totalplay_count, :recommendation_count, :radio_count, :created_by_user_id, :created_at, :updated_at)';
 
     $stmt = db()->prepare($sql);
 
@@ -90,6 +94,8 @@ function createDailyReport(array $data): bool
 
 function updateDailyReport(int $reportId, array $data): bool
 {
+    ensureDailyReportsSchema();
+
     $data['id'] = $reportId;
 
     $sql = 'UPDATE daily_reports SET
@@ -102,6 +108,8 @@ function updateDailyReport(int $reportId, array $data): bool
         youtube_count = :youtube_count,
         izzi_count = :izzi_count,
         totalplay_count = :totalplay_count,
+        recommendation_count = :recommendation_count,
+        radio_count = :radio_count,
         updated_at = :updated_at
         WHERE id = :id';
 
@@ -118,6 +126,8 @@ function deleteDailyReport(int $reportId): bool
 
 function getReportById(int $reportId): ?array
 {
+    ensureDailyReportsSchema();
+
     $stmt = db()->prepare('SELECT dr.*, s.name AS store_name
         FROM daily_reports dr
         INNER JOIN stores s ON s.id = dr.store_id
@@ -158,6 +168,8 @@ function buildDashboardWhere(array $filters, array &$params): string
 
 function getDashboardMetrics(array $filters): array
 {
+    ensureDailyReportsSchema();
+
     $params = [];
     $where = buildDashboardWhere($filters, $params);
 
@@ -169,7 +181,9 @@ function getDashboardMetrics(array $filters): array
             COALESCE(SUM(dr.channel33_count), 0) AS total_channel33,
             COALESCE(SUM(dr.youtube_count), 0) AS total_youtube,
             COALESCE(SUM(dr.izzi_count), 0) AS total_izzi,
-            COALESCE(SUM(dr.totalplay_count), 0) AS total_totalplay
+            COALESCE(SUM(dr.totalplay_count), 0) AS total_totalplay,
+            COALESCE(SUM(dr.recommendation_count), 0) AS total_recommendation,
+            COALESCE(SUM(dr.radio_count), 0) AS total_radio
         FROM daily_reports dr' . $where;
 
     $stmt = db()->prepare($sql);
@@ -185,6 +199,8 @@ function getDashboardMetrics(array $filters): array
 
 function getDashboardReports(array $filters): array
 {
+    ensureDailyReportsSchema();
+
     $params = [];
     $where = buildDashboardWhere($filters, $params);
 
@@ -203,6 +219,8 @@ function getDashboardReports(array $filters): array
 
 function getChartDataByStore(array $filters): array
 {
+    ensureDailyReportsSchema();
+
     $params = [];
     $where = buildDashboardWhere($filters, $params);
 
@@ -237,6 +255,8 @@ function getChartDataByStore(array $filters): array
 
 function getChartDataByDate(array $filters): array
 {
+    ensureDailyReportsSchema();
+
     $params = [];
     $where = buildDashboardWhere($filters, $params);
 
@@ -256,6 +276,8 @@ function getChartDataByDate(array $filters): array
 
 function getSourceChartTotals(array $filters): array
 {
+    ensureDailyReportsSchema();
+
     $params = [];
     $where = buildDashboardWhere($filters, $params);
 
@@ -263,7 +285,9 @@ function getSourceChartTotals(array $filters): array
                 COALESCE(SUM(dr.channel33_count), 0) AS channel33_total,
                 COALESCE(SUM(dr.youtube_count), 0) AS youtube_total,
                 COALESCE(SUM(dr.izzi_count), 0) AS izzi_total,
-                COALESCE(SUM(dr.totalplay_count), 0) AS totalplay_total
+                COALESCE(SUM(dr.totalplay_count), 0) AS totalplay_total,
+                COALESCE(SUM(dr.recommendation_count), 0) AS recommendation_total,
+                COALESCE(SUM(dr.radio_count), 0) AS radio_total
             FROM daily_reports dr
             ' . $where;
 
@@ -275,7 +299,33 @@ function getSourceChartTotals(array $filters): array
         'youtube_total' => 0,
         'izzi_total' => 0,
         'totalplay_total' => 0,
+        'recommendation_total' => 0,
+        'radio_total' => 0,
     ];
+}
+
+function ensureDailyReportsSchema(): void
+{
+    static $checked = false;
+
+    if ($checked) {
+        return;
+    }
+
+    $checked = true;
+
+    $columnsToEnsure = [
+        'recommendation_count' => 'ALTER TABLE daily_reports ADD COLUMN recommendation_count INT UNSIGNED NOT NULL DEFAULT 0 AFTER totalplay_count',
+        'radio_count' => 'ALTER TABLE daily_reports ADD COLUMN radio_count INT UNSIGNED NOT NULL DEFAULT 0 AFTER recommendation_count',
+    ];
+
+    foreach ($columnsToEnsure as $columnName => $alterSql) {
+        $stmt = db()->prepare('SHOW COLUMNS FROM daily_reports LIKE :column_name');
+        $stmt->execute(['column_name' => $columnName]);
+        if (!$stmt->fetch()) {
+            db()->exec($alterSql);
+        }
+    }
 }
 
 function getStoreUsers(): array
@@ -415,7 +465,7 @@ function getLoginBackgroundUrl(): string
         return '';
     }
 
-    return $path . '?v=' . rawurlencode((string) @filemtime(__DIR__ . '/' . $path));
+    return './' . ltrim($path, '/') . '?v=' . rawurlencode((string) @filemtime(__DIR__ . '/' . $path));
 }
 
 function uploadLoginBackground(array $file): string

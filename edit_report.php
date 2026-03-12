@@ -25,11 +25,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $youtubeCount = validateNonNegativeInt($_POST['youtube_count'] ?? '');
         $izziCount = validateNonNegativeInt($_POST['izzi_count'] ?? '');
         $totalplayCount = validateNonNegativeInt($_POST['totalplay_count'] ?? '');
+        $recommendationCount = validateNonNegativeInt($_POST['recommendation_count'] ?? '');
+        $radioCount = validateNonNegativeInt($_POST['radio_count'] ?? '');
 
         $enteredTotal = $clientNew + $recurrent;
 
         if ($buyers > $enteredTotal) {
-            throw new InvalidArgumentException('Compraron no puede ser mayor que Entraron.');
+            throw new InvalidArgumentException('Compraron no puede ser mayor que Clientes en el día.');
         }
 
         updateDailyReport($reportId, [
@@ -42,6 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'youtube_count' => $youtubeCount,
             'izzi_count' => $izziCount,
             'totalplay_count' => $totalplayCount,
+            'recommendation_count' => $recommendationCount,
+            'radio_count' => $radioCount,
             'updated_at' => appDateTimeNow(),
         ]);
 
@@ -124,19 +128,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
 
                         <div class="field">
-                            <label>Entraron</label>
+                            <label>Clientes en el día</label>
                             <input type="number" id="entered_total_preview" value="<?php echo (int) $report['entered_total']; ?>" readonly class="readonly-input">
                         </div>
 
                         <div class="field">
                             <label>Compraron</label>
                             <input type="number" name="buyers" id="buyers" min="0" step="1" value="<?php echo (int) $report['buyers']; ?>" required>
-                            <small class="helper-text">No puede ser mayor que Entraron.</small>
+                            <small class="helper-text">No puede ser mayor que Clientes en el día.</small>
+                        </div>
+
+                        <div class="field">
+                            <label>Entraron</label>
+                            <input type="number" id="entered_from_interest_preview" value="<?php echo (int) $report['buyers'] + (int) $report['info_count']; ?>" readonly class="readonly-input">
                         </div>
 
                         <div class="field">
                             <label>Información</label>
-                            <input type="number" name="info_count" min="0" step="1" value="<?php echo (int) $report['info_count']; ?>" required>
+                            <input type="number" name="info_count" id="info_count" min="0" step="1" value="<?php echo (int) $report['info_count']; ?>" required>
                         </div>
 
                         <div class="source-box full">
@@ -161,6 +170,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <label>Total Play</label>
                                     <input type="number" name="totalplay_count" min="0" step="1" value="<?php echo (int) $report['totalplay_count']; ?>" required>
                                 </div>
+
+                                <div class="field">
+                                    <label>Recomendación</label>
+                                    <input type="number" name="recommendation_count" min="0" step="1" value="<?php echo (int) ($report['recommendation_count'] ?? 0); ?>" required>
+                                </div>
+
+                                <div class="field">
+                                    <label>Radio</label>
+                                    <input type="number" name="radio_count" min="0" step="1" value="<?php echo (int) ($report['radio_count'] ?? 0); ?>" required>
+                                </div>
                             </div>
                         </div>
 
@@ -178,6 +197,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         const recurrentInput = document.querySelector('input[name="recurrent"]');
         const buyersInput = document.getElementById('buyers');
         const enteredTotalPreview = document.getElementById('entered_total_preview');
+        const infoCountInput = document.getElementById('info_count');
+        const enteredFromInterestPreview = document.getElementById('entered_from_interest_preview');
         const editForm = document.getElementById('editForm');
 
         function recalculateEntered() {
@@ -186,10 +207,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const total = clientNew + recurrent;
             enteredTotalPreview.value = total;
             buyersInput.max = total;
+
+            const buyers = parseInt(buyersInput?.value || 0, 10);
+            const infoCount = parseInt(infoCountInput?.value || 0, 10);
+            enteredFromInterestPreview.value = buyers + infoCount;
         }
 
         clientNewInput?.addEventListener('input', recalculateEntered);
         recurrentInput?.addEventListener('input', recalculateEntered);
+        buyersInput?.addEventListener('input', recalculateEntered);
+        infoCountInput?.addEventListener('input', recalculateEntered);
 
         editForm?.addEventListener('submit', function (event) {
             const total = parseInt(enteredTotalPreview.value || 0, 10);
@@ -197,7 +224,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (buyers > total) {
                 event.preventDefault();
-                alert('Compraron no puede ser mayor que Entraron.');
+                alert('Compraron no puede ser mayor que Clientes en el día.');
             }
         });
 

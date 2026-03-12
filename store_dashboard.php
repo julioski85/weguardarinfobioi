@@ -19,11 +19,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$todayReport) {
         $youtubeCount = validateNonNegativeInt($_POST['youtube_count'] ?? '');
         $izziCount = validateNonNegativeInt($_POST['izzi_count'] ?? '');
         $totalplayCount = validateNonNegativeInt($_POST['totalplay_count'] ?? '');
+        $recommendationCount = validateNonNegativeInt($_POST['recommendation_count'] ?? '');
+        $radioCount = validateNonNegativeInt($_POST['radio_count'] ?? '');
 
         $enteredTotal = $clientNew + $recurrent;
 
         if ($buyers > $enteredTotal) {
-            throw new InvalidArgumentException('Compraron no puede ser mayor que Entraron.');
+            throw new InvalidArgumentException('Compraron no puede ser mayor que Clientes en el día.');
         }
 
         createDailyReport([
@@ -38,6 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$todayReport) {
             'youtube_count' => $youtubeCount,
             'izzi_count' => $izziCount,
             'totalplay_count' => $totalplayCount,
+            'recommendation_count' => $recommendationCount,
+            'radio_count' => $radioCount,
             'created_by_user_id' => (int) $user['id'],
             'created_at' => appDateTimeNow(),
             'updated_at' => appDateTimeNow(),
@@ -128,15 +132,18 @@ $todayReport = getTodayReportForStore((int) $user['store_id']);
                         </div>
 
                         <div class="summary-grid">
-                            <div class="summary-box"><span>Entraron</span><strong><?php echo (int) $todayReport['entered_total']; ?></strong></div>
+                            <div class="summary-box"><span>Clientes en el día</span><strong><?php echo (int) $todayReport['entered_total']; ?></strong></div>
                             <div class="summary-box"><span>Cliente nuevo</span><strong><?php echo (int) $todayReport['client_new']; ?></strong></div>
                             <div class="summary-box"><span>Recurrentes</span><strong><?php echo (int) $todayReport['recurrent']; ?></strong></div>
                             <div class="summary-box"><span>Compraron</span><strong><?php echo (int) $todayReport['buyers']; ?></strong></div>
+                            <div class="summary-box"><span>Entraron</span><strong><?php echo (int) $todayReport['buyers'] + (int) $todayReport['info_count']; ?></strong></div>
                             <div class="summary-box"><span>Información</span><strong><?php echo (int) $todayReport['info_count']; ?></strong></div>
                             <div class="summary-box"><span>Canal 3.3</span><strong><?php echo (int) $todayReport['channel33_count']; ?></strong></div>
                             <div class="summary-box"><span>YouTube</span><strong><?php echo (int) $todayReport['youtube_count']; ?></strong></div>
                             <div class="summary-box"><span>Izzi</span><strong><?php echo (int) $todayReport['izzi_count']; ?></strong></div>
                             <div class="summary-box"><span>Total Play</span><strong><?php echo (int) $todayReport['totalplay_count']; ?></strong></div>
+                            <div class="summary-box"><span>Recomendación</span><strong><?php echo (int) ($todayReport['recommendation_count'] ?? 0); ?></strong></div>
+                            <div class="summary-box"><span>Radio</span><strong><?php echo (int) ($todayReport['radio_count'] ?? 0); ?></strong></div>
                         </div>
                     <?php else: ?>
                         <form method="post" id="reportForm" class="form-grid">
@@ -151,19 +158,24 @@ $todayReport = getTodayReportForStore((int) $user['store_id']);
                             </div>
 
                             <div class="field">
-                                <label>Entraron</label>
+                                <label>Clientes en el día</label>
                                 <input type="number" id="entered_total_preview" value="0" readonly class="readonly-input">
                             </div>
 
                             <div class="field">
                                 <label>Compraron</label>
                                 <input type="number" name="buyers" id="buyers" min="0" step="1" required>
-                                <small class="helper-text">No puede ser mayor que Entraron.</small>
+                                <small class="helper-text">No puede ser mayor que Clientes en el día.</small>
+                            </div>
+
+                            <div class="field">
+                                <label>Entraron</label>
+                                <input type="number" id="entered_from_interest_preview" value="0" readonly class="readonly-input">
                             </div>
 
                             <div class="field">
                                 <label>Información</label>
-                                <input type="number" name="info_count" min="0" step="1" required>
+                                <input type="number" name="info_count" id="info_count" min="0" step="1" required>
                             </div>
 
                             <div class="source-box full">
@@ -188,6 +200,16 @@ $todayReport = getTodayReportForStore((int) $user['store_id']);
                                         <label>Total Play</label>
                                         <input type="number" name="totalplay_count" min="0" step="1" required>
                                     </div>
+
+                                    <div class="field">
+                                        <label>Recomendación</label>
+                                        <input type="number" name="recommendation_count" min="0" step="1" required>
+                                    </div>
+
+                                    <div class="field">
+                                        <label>Radio</label>
+                                        <input type="number" name="radio_count" min="0" step="1" required>
+                                    </div>
                                 </div>
                             </div>
 
@@ -206,6 +228,8 @@ $todayReport = getTodayReportForStore((int) $user['store_id']);
         const recurrentInput = document.querySelector('input[name="recurrent"]');
         const buyersInput = document.getElementById('buyers');
         const enteredTotalPreview = document.getElementById('entered_total_preview');
+        const infoCountInput = document.getElementById('info_count');
+        const enteredFromInterestPreview = document.getElementById('entered_from_interest_preview');
         const reportForm = document.getElementById('reportForm');
 
         function recalculateEntered() {
@@ -214,10 +238,16 @@ $todayReport = getTodayReportForStore((int) $user['store_id']);
             const total = clientNew + recurrent;
             if (enteredTotalPreview) enteredTotalPreview.value = total;
             if (buyersInput) buyersInput.max = total;
+
+            const buyers = parseInt(buyersInput?.value || 0, 10);
+            const infoCount = parseInt(infoCountInput?.value || 0, 10);
+            if (enteredFromInterestPreview) enteredFromInterestPreview.value = buyers + infoCount;
         }
 
         clientNewInput?.addEventListener('input', recalculateEntered);
         recurrentInput?.addEventListener('input', recalculateEntered);
+        buyersInput?.addEventListener('input', recalculateEntered);
+        infoCountInput?.addEventListener('input', recalculateEntered);
 
         reportForm?.addEventListener('submit', function (event) {
             const total = parseInt(enteredTotalPreview.value || 0, 10);
@@ -225,7 +255,7 @@ $todayReport = getTodayReportForStore((int) $user['store_id']);
 
             if (buyers > total) {
                 event.preventDefault();
-                alert('Compraron no puede ser mayor que Entraron.');
+                alert('Compraron no puede ser mayor que Clientes en el día.');
             }
         });
 

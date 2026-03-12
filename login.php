@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Registro Diario de Tienda | Acceso</title>
     <link rel="stylesheet" href="assets/style.css">
 </head>
-<body class="auth-body"<?php if ($loginBackgroundUrl): ?> style="--login-bg-image: url('<?php echo e($loginBackgroundUrl); ?>');"<?php endif; ?>>
+<body class="auth-body"<?php if ($loginBackgroundUrl): ?> style="--login-bg-image: url(&quot;<?php echo e($loginBackgroundUrl); ?>&quot;);"<?php endif; ?>>
     <div class="auth-layout">
         <div class="auth-card-wrap">
             <section class="auth-card">

@@ -111,7 +111,7 @@ $flash = flashGet();
 
                 <section class="metrics-grid">
                     <div class="metric-card metric-purple"><span>Registros</span><strong><?php echo (int) $metrics['total_records']; ?></strong></div>
-                    <div class="metric-card metric-green"><span>Entraron</span><strong><?php echo (int) $metrics['total_entered']; ?></strong></div>
+                    <div class="metric-card metric-green"><span>Clientes en el día</span><strong><?php echo (int) $metrics['total_entered']; ?></strong></div>
                     <div class="metric-card metric-orange"><span>Compraron</span><strong><?php echo (int) $metrics['total_buyers']; ?></strong></div>
                     <div class="metric-card metric-blue"><span>Conversión</span><strong><?php echo e((string) $metrics['conversion_rate']); ?>%</strong></div>
                     <div class="metric-card metric-neutral"><span>Información</span><strong><?php echo (int) $metrics['total_information']; ?></strong></div>
@@ -122,7 +122,7 @@ $flash = flashGet();
                     <div class="card chart-short">
                         <div class="card-header">
                             <div>
-                                <h2>Entraron vs Compraron</h2>
+                                <h2>Clientes en el día vs Compraron</h2>
                                 <p class="section-copy">Comparativa por sucursal.</p>
                             </div>
                         </div>
@@ -133,7 +133,7 @@ $flash = flashGet();
                         <div class="card-header">
                             <div>
                                 <h2>Origen del interés</h2>
-                                <p class="section-copy">Canal 3.3, YouTube, Izzi y Total Play.</p>
+                                <p class="section-copy">Canal 3.3, YouTube, Izzi, Total Play, Recomendación y Radio.</p>
                             </div>
                         </div>
                         <canvas id="sourceChart"></canvas>
@@ -180,15 +180,18 @@ $flash = flashGet();
                                 <tr>
                                     <th>Fecha</th>
                                     <th>Tienda</th>
-                                    <th>Entraron</th>
+                                    <th>Clientes en el día</th>
                                     <th>Cliente nuevo</th>
                                     <th>Recurrentes</th>
                                     <th>Compraron</th>
+                                    <th>Entraron</th>
                                     <th>Información</th>
                                     <th>Canal 3.3</th>
                                     <th>YouTube</th>
                                     <th>Izzi</th>
                                     <th>Total Play</th>
+                                    <th>Recomendación</th>
+                                    <th>Radio</th>
                                     <th>Capturó</th>
                                     <th>Acciones</th>
                                 </tr>
@@ -196,7 +199,7 @@ $flash = flashGet();
                             <tbody>
                                 <?php if (!$reports): ?>
                                     <tr>
-                                        <td colspan="13" class="text-center muted">No hay registros con ese filtro.</td>
+                                        <td colspan="16" class="text-center muted">No hay registros con ese filtro.</td>
                                     </tr>
                                 <?php else: ?>
                                     <?php foreach ($reports as $report): ?>
@@ -207,11 +210,14 @@ $flash = flashGet();
                                             <td><?php echo (int) $report['client_new']; ?></td>
                                             <td><?php echo (int) $report['recurrent']; ?></td>
                                             <td><?php echo (int) $report['buyers']; ?></td>
+                                            <td><?php echo (int) $report['buyers'] + (int) $report['info_count']; ?></td>
                                             <td><?php echo (int) $report['info_count']; ?></td>
                                             <td><?php echo (int) $report['channel33_count']; ?></td>
                                             <td><?php echo (int) $report['youtube_count']; ?></td>
                                             <td><?php echo (int) $report['izzi_count']; ?></td>
                                             <td><?php echo (int) $report['totalplay_count']; ?></td>
+                                            <td><?php echo (int) ($report['recommendation_count'] ?? 0); ?></td>
+                                            <td><?php echo (int) ($report['radio_count'] ?? 0); ?></td>
                                             <td><?php echo e($report['created_by_username'] ?? '-'); ?></td>
                                             <td>
                                                 <div class="actions-inline">
@@ -261,7 +267,7 @@ $flash = flashGet();
                 labels: <?php echo json_encode(array_column($chartByStore, 'name')); ?>,
                 datasets: [
                     {
-                        label: 'Entraron',
+                        label: 'Clientes en el día',
                         backgroundColor: '#6259ca',
                         borderRadius: 8,
                         data: <?php echo json_encode(array_map('intval', array_column($chartByStore, 'total_entered'))); ?>
@@ -283,7 +289,7 @@ $flash = flashGet();
                 labels: <?php echo json_encode(array_map(fn($row) => date('d/m', strtotime($row['report_date'])), $chartByDate)); ?>,
                 datasets: [
                     {
-                        label: 'Entraron',
+                        label: 'Clientes en el día',
                         data: <?php echo json_encode(array_map('intval', array_column($chartByDate, 'total_entered'))); ?>,
                         borderColor: '#6259ca',
                         backgroundColor: 'rgba(98, 89, 202, 0.08)',
@@ -326,15 +332,17 @@ $flash = flashGet();
         new Chart(document.getElementById('sourceChart'), {
             type: 'doughnut',
             data: {
-                labels: ['Canal 3.3', 'YouTube', 'Izzi', 'Total Play'],
+                labels: ['Canal 3.3', 'YouTube', 'Izzi', 'Total Play', 'Recomendación', 'Radio'],
                 datasets: [{
                     data: [
                         <?php echo (int) $sourceTotals['channel33_total']; ?>,
                         <?php echo (int) $sourceTotals['youtube_total']; ?>,
                         <?php echo (int) $sourceTotals['izzi_total']; ?>,
-                        <?php echo (int) $sourceTotals['totalplay_total']; ?>
+                        <?php echo (int) $sourceTotals['totalplay_total']; ?>,
+                        <?php echo (int) ($sourceTotals['recommendation_total'] ?? 0); ?>,
+                        <?php echo (int) ($sourceTotals['radio_total'] ?? 0); ?>
                     ],
-                    backgroundColor: ['#22c55e', '#ff9f43', '#3b82f6', '#8b5cf6'],
+                    backgroundColor: ['#22c55e', '#ff9f43', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6'],
                     borderWidth: 0
                 }]
             },

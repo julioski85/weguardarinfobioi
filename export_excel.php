@@ -14,15 +14,18 @@ echo '<table border="1">';
 echo '<tr>
         <th>Fecha</th>
         <th>Tienda</th>
-        <th>Entraron</th>
+        <th>Clientes en el día</th>
         <th>Cliente nuevo</th>
         <th>Recurrentes</th>
         <th>Compraron</th>
+        <th>Entraron</th>
         <th>Información</th>
         <th>Canal 3.3</th>
         <th>YouTube</th>
         <th>Izzi</th>
         <th>Total Play</th>
+        <th>Recomendación</th>
+        <th>Radio</th>
         <th>Capturó</th>
       </tr>';
 
@@ -34,11 +37,14 @@ foreach ($reports as $report) {
     echo '<td>' . (int) $report['client_new'] . '</td>';
     echo '<td>' . (int) $report['recurrent'] . '</td>';
     echo '<td>' . (int) $report['buyers'] . '</td>';
+    echo '<td>' . ((int) $report['buyers'] + (int) $report['info_count']) . '</td>';
     echo '<td>' . (int) $report['info_count'] . '</td>';
     echo '<td>' . (int) $report['channel33_count'] . '</td>';
     echo '<td>' . (int) $report['youtube_count'] . '</td>';
     echo '<td>' . (int) $report['izzi_count'] . '</td>';
     echo '<td>' . (int) $report['totalplay_count'] . '</td>';
+    echo '<td>' . (int) ($report['recommendation_count'] ?? 0) . '</td>';
+    echo '<td>' . (int) ($report['radio_count'] ?? 0) . '</td>';
     echo '<td>' . e($report['created_by_username'] ?? '-') . '</td>';
     echo '</tr>';
 }

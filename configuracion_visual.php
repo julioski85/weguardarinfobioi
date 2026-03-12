@@ -6,6 +6,7 @@ require_once __DIR__ . '/auth.php';
 $user = requireAdmin();
 $flash = flashGet();
 $error = '';
+$loginBackgroundUrl = getLoginBackgroundUrl();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') === 'update_login_background') {
     try {
@@ -98,9 +99,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') =
                             <button type="submit" class="btn btn-primary">Guardar imagen</button>
                         </div>
                     </form>
+
+                    <div class="visual-preview">
+                        <p class="section-copy">Vista previa actual</p>
+                        <?php if ($loginBackgroundUrl): ?>
+                            <img id="loginBackgroundPreview" src="<?php echo e($loginBackgroundUrl); ?>" alt="Vista previa del fondo de login" class="visual-preview-image">
+                        <?php else: ?>
+                            <p class="muted">No hay imagen configurada todavía.</p>
+                        <?php endif; ?>
+                    </div>
                 </section>
             </main>
         </div>
     </div>
+    <script>
+        const fileInput = document.getElementById('login_background_image');
+        const previewImage = document.getElementById('loginBackgroundPreview');
+
+        fileInput?.addEventListener('change', () => {
+            const selected = fileInput.files && fileInput.files[0];
+            if (!selected) return;
+
+            const objectUrl = URL.createObjectURL(selected);
+            if (previewImage) {
+                previewImage.src = objectUrl;
+            }
+        });
+    </script>
 </body>
 </html>

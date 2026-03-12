@@ -21,7 +21,7 @@
     --sidebar-text: #dbe3f0;
     --sidebar-muted: #98a2b3;
     --sidebar-active: #f8fafc;
-    --login-bg-image: url('1.jpg');
+    --login-bg-image: none;
 }
 
 * { box-sizing: border-box; }
@@ -612,4 +612,19 @@ tr:hover td { background: #fbfdff; }
     .app-main { padding: 1rem; }
     .card { padding: 1rem; }
     .auth-card { padding: 1.4rem; }
+}
+
+
+.visual-preview {
+    margin-top: 1rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+}
+
+.visual-preview-image {
+    width: 100%;
+    max-width: 460px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    display: block;
 }
