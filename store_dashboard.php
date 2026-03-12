@@ -163,19 +163,18 @@ $todayReport = getTodayReportForStore((int) $user['store_id']);
                             </div>
 
                             <div class="field">
-                                <label>Personas que entraron</label>
-                                <input type="number" id="entered_from_interest_preview" value="0" readonly class="readonly-input">
-                            </div>
-
-                            <div class="field">
-                                <label>Compraron</label>
+                                <label>Compraron <span class="label-hint">(máximo: Clientes en el día)</span></label>
                                 <input type="number" name="buyers" id="buyers" min="0" step="1" required>
-                                <small class="helper-text">No puede ser mayor que Clientes en el día.</small>
                             </div>
 
                             <div class="field">
                                 <label>Información</label>
                                 <input type="number" name="info_count" id="info_count" min="0" step="1" required>
+                            </div>
+
+                            <div class="field">
+                                <label>Personas que entraron</label>
+                                <input type="number" id="entered_from_interest_preview" value="0" readonly class="readonly-input">
                             </div>
 
                             <div class="source-box full">
